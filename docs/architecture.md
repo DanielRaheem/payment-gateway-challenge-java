@@ -16,7 +16,7 @@ flowchart LR
     Mapping --> Client[Bank client and response mapper]
     Client --> Simulator[Docker bank simulator]
     Service --> Repository[In-memory payments repository]
-    Controller --> Errors[Common exception handler]
+    Controller --> Errors[Global exception handler]
 ```
 
 POST validates first. With a key, the coordinator reserves the request or returns
