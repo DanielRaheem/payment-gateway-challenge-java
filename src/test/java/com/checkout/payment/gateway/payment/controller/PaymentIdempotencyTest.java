@@ -2,8 +2,10 @@ package com.checkout.payment.gateway.payment.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -228,6 +230,29 @@ class PaymentIdempotencyTest {
       executor.shutdownNow();
       assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
     }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"", " ", "\t"})
+  void rejectsBlankIdempotencyKeyWithoutCallingBank(
+      String key) throws Exception {
+
+    MockHttpServletResponse response =
+        submit(key, validRequest().toString());
+
+    assertThat(response.getStatus()).isEqualTo(400);
+
+    assertThat(objectMapper.readTree(
+        response.getContentAsString()
+    )).isEqualTo(objectMapper.readTree("""
+        {
+          "status": "Rejected",
+          "message": "Invalid payment request"
+        }
+        """));
+
+    verifyNoInteractions(bankClient);
+    verify(repository, never()).add(any());
   }
 
   private MockHttpServletResponse submit(String key, String body) throws Exception {

@@ -55,9 +55,14 @@ and returns 200, or 404 for an absent UUID, without calling the bank.
   existing camelCase contract. The gateway returns its own UUID, not the bank's code.
 - 201 means a processed payment, including a decline. 400 Rejected means invalid
   input. Bank technical failures use code/message bodies with 502, 503 or 504.
-- The optional idempotency key compares full payment details, including CVV. No key
-  means an independent attempt. Keys are not merchant-scoped or application-length
-  validated; blank keys currently participate in coordination like other strings.
+- The optional `Idempotency-Key` header coordinates requests using a fingerprint
+  of all payment fields, including CVV. When the header is absent, each request
+  is processed independently. Empty or whitespace-only keys are rejected with
+  HTTP 400. Reusing a key with identical payment details returns the existing
+  outcome; reusing it with different details returns HTTP 409. Keys are not
+  merchant-scoped and have no maximum-length restriction enforced by the
+  application. Coordination is in-memory and lasts only for the lifetime of
+  the gateway process.
 
 ## Known limitations and follow-up work
 
@@ -70,9 +75,10 @@ and returns 200, or 404 for an absent UUID, without calling the bank.
 3. **Failure uncertainty:** a timeout can mean the bank processed a payment. Reusing
    a key replays the stored technical failure; using a new key can cause a new attempt.
    Unexpected internal failures reserve the key but have no custom public error DTO.
-4. **Security and hosting:** no authentication, merchant isolation or TLS termination.
-   Compose binds the gateway to loopback, but the supplied bank/admin ports remain
-   published. Use synthetic data locally. Gateway redaction does not establish the
+4. **Security and hosting:** no authentication, merchant isolation or TLS
+   termination is provided. Docker Compose binds both the gateway and bank
+   simulator ports to `127.0.0.1`, limiting host access to the local machine.
+   Use synthetic payment data only. Gateway redaction does not establish the
    simulator's retention/logging policy or any payment-compliance certification.
 5. **Operations:** readiness does not probe the bank. Compose orders startup without
    checking simulator readiness. No tracing collector, Prometheus server, dashboards,
