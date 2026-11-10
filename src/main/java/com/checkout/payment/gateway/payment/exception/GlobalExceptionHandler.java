@@ -31,10 +31,10 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EventProcessingException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ErrorResponse handleException(EventProcessingException exception) {
+  public ErrorResponse handlePaymentNotFound(EventProcessingException exception) {
     meters.counter(MetricNames.PAYMENT_ERRORS, "code", "PAYMENT_NOT_FOUND").increment();
     LOG.info("Payment lookup returned not found");
-    return new ErrorResponse("Page not found");
+    return new ErrorResponse("Payment not found");
   }
 
   @ExceptionHandler(BankUnavailableException.class)
@@ -59,8 +59,8 @@ public class GlobalExceptionHandler {
       HttpMessageNotReadableException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Map<String, String> handleRejectedPayment() {
-    // Keep handlers together so a bank failure wins over a nested JSON parsing exception.
-    // Do not echo rejected values or parsing errors containing card data.
+    // Reject invalid or malformed payment requests without
+    // exposing sensitive payment information.
     meters.counter(MetricNames.PAYMENT_ERRORS, "code", "INVALID_REQUEST").increment();
     LOG.info("Payment request rejected: invalid input");
     return Map.of("status", "Rejected", "message", "Invalid payment request");

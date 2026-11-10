@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-// "api" names the Spring bean; it does not add a URL prefix to the endpoint.
 @RestController("api")
 public class PaymentGatewayController {
 
@@ -34,7 +33,7 @@ public class PaymentGatewayController {
   }
 
   @GetMapping("/payment/{id}")
-  public ResponseEntity<PaymentResponse> getPostPaymentEventById(@PathVariable UUID id) {
+  public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable UUID id) {
     PaymentResponse payment = paymentGatewayService.getPaymentById(id);
     return new ResponseEntity<>(payment, HttpStatus.OK);
   }
