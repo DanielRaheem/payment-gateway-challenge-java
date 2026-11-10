@@ -1,6 +1,15 @@
-version: "3.8"
-
 services:
+  gateway:
+    build: .
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT:-8090}:8090"
+    environment:
+      BANK_BASE_URL: http://bank_simulator:8080
+    depends_on:
+      bank_simulator:
+        condition: service_started
+    stop_grace_period: 20s
+
   bank_simulator:
     container_name: bank_simulator
     image: bbyars/mountebank:2.8.1
@@ -12,4 +21,3 @@ services:
       - type: bind
         source: ./imposters
         target: /imposters
-      
