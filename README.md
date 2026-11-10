@@ -69,7 +69,6 @@ currencies are GBP, USD and EUR; amounts are integer minor units.
 - [Test coverage and review instructions](docs/testing.md)
 - [Individual smoke scripts](scripts/smoke/README.md)
 - [Logging, metrics and operational diagnosis](docs/observability.md)
-- [Five-minute demonstration](docs/demo.md)
 - [Setup and demonstration PDF](output/pdf/payment-gateway-setup-and-demo.pdf)
 - [Complete request-flow PDF](output/pdf/payment-gateway-flow-walkthrough.pdf)
 

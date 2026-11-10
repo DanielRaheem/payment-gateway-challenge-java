@@ -80,5 +80,5 @@ and returns 200, or 404 for an absent UUID, without calling the bank.
 6. **Build lifecycle:** base image tags and OS package versions are mutable. Java 17
    is selected by the Docker image; local Gradle needs JAVA_HOME configured. Dependency
    upgrades, vulnerability scanning and CI/release automation remain future work.
-See [testing](testing.md), [observability](observability.md) and the
-[short demo](demo.md) for reproducible evidence and presentation steps.
+See [testing](testing.md) and [observability](observability.md) for reproducible
+verification and operational guidance.
