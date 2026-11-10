@@ -6,9 +6,10 @@ import com.checkout.payment.gateway.bank.exception.BankTimeoutException;
 import com.checkout.payment.gateway.bank.exception.BankUnavailableException;
 import com.checkout.payment.gateway.bank.exception.InvalidBankResponseException;
 import com.checkout.payment.gateway.bank.model.BankErrorResponse;
+import com.checkout.payment.gateway.payment.model.ApiErrorResponse;
 import com.checkout.payment.gateway.payment.model.ErrorResponse;
+import com.checkout.payment.gateway.payment.model.RejectedPaymentResponse;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -56,22 +57,44 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({MethodArgumentNotValidException.class,
-      HttpMessageNotReadableException.class})
+      HttpMessageNotReadableException.class,
+      InvalidIdempotencyKeyException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public Map<String, String> handleRejectedPayment() {
+  public RejectedPaymentResponse handleRejectedPayment() {
+
     // Reject invalid or malformed payment requests without
     // exposing sensitive payment information.
-    meters.counter(MetricNames.PAYMENT_ERRORS, "code", "INVALID_REQUEST").increment();
+    meters.counter(
+        MetricNames.PAYMENT_ERRORS,
+        "code",
+        "INVALID_REQUEST"
+    ).increment();
+
     LOG.info("Payment request rejected: invalid input");
-    return Map.of("status", "Rejected", "message", "Invalid payment request");
+
+    return new RejectedPaymentResponse(
+        "Rejected",
+        "Invalid payment request"
+    );
   }
 
   @ExceptionHandler(IdempotencyConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
-  public Map<String, String> handleIdempotencyConflict(IdempotencyConflictException exception) {
-    meters.counter(MetricNames.PAYMENT_ERRORS, "code", "IDEMPOTENCY_CONFLICT").increment();
+  public ApiErrorResponse handleIdempotencyConflict(
+      IdempotencyConflictException exception) {
+
+    meters.counter(
+        MetricNames.PAYMENT_ERRORS,
+        "code",
+        "IDEMPOTENCY_CONFLICT"
+    ).increment();
+
     LOG.info("Payment request rejected: idempotency conflict");
-    return Map.of("code", "IDEMPOTENCY_CONFLICT", "message", exception.getMessage());
+
+    return new ApiErrorResponse(
+        "IDEMPOTENCY_CONFLICT",
+        exception.getMessage()
+    );
   }
 
   private BankErrorResponse bankError(BankProcessingException exception) {

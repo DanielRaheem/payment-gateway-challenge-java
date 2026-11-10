@@ -7,6 +7,7 @@ import com.checkout.payment.gateway.bank.exception.BankTimeoutException;
 import com.checkout.payment.gateway.bank.exception.BankUnavailableException;
 import com.checkout.payment.gateway.bank.exception.InvalidBankResponseException;
 import com.checkout.payment.gateway.payment.exception.IdempotencyConflictException;
+import com.checkout.payment.gateway.payment.exception.InvalidIdempotencyKeyException;
 import com.checkout.payment.gateway.payment.model.PostPaymentRequest;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -41,6 +42,9 @@ public class PaymentIdempotencyService {
     if (key == null) {
       recordDecision("NO_KEY");
       return processPayment.get();
+    }
+    if (key.isBlank()) {
+      throw new InvalidIdempotencyKeyException();
     }
 
     String fingerprint = fingerprints.create(request);
