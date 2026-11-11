@@ -81,7 +81,7 @@ Each attempt makes one bank call, performs no repository operations on failure,
 and does not automatically retry. Not saving a completed result does not establish
 that the bank did not process it; a timeout can leave the outcome unknown.
 
-`BankFailureServiceTest` and `BankFailureControllerTest` share upstream fixtures
+`BankClientTest` and `BankFailureControllerTest` share upstream fixtures
 and run without Docker. They specify error translation, HTTP mapping, safe bodies,
 no storage, and no retries. String/numeric authorization values must be rejected
 rather than coerced to a Boolean. Authorization-code requirements are unchanged;

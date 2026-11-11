@@ -20,7 +20,7 @@ To deliberately run again rather than accepting Gradle's cached results:
 | --- | --- |
 | Validation, fixed-clock expiry, JSON binding and redaction | `PaymentValidationTest`, `PostPaymentRequestTest`, `BankPaymentDtoTest` |
 | Processing, masking, retrieval and rejection | `PaymentProcessingTest`, `PaymentGatewayServiceTest`, `PaymentGatewayControllerTest`, `PaymentRoundTripTest` |
-| Bank timeouts, invalid JSON/types and HTTP errors | `BankFailureServiceTest`, `BankFailureControllerTest`, `BankErrorResponseTest` |
+| Bank timeouts, invalid JSON/types and HTTP errors | `BankClientTest`, `BankFailureControllerTest`, `BankErrorResponseTest` |
 | Concurrent repository access and key coordination | `PaymentsRepositoryConcurrencyTest`, `PaymentIdempotencyTest` |
 | Metrics, correlation cleanup, forwarding and safe logging | `ObservabilityTest`, `RequestLoggingTest` |
 
@@ -73,6 +73,18 @@ tests, and all 13 standalone smoke scenarios passed against the gateway on port
 8091. The runtime UID was verified as 10001. This is a point-in-time result, not a
 continuous integration guarantee or a performance/security assessment.
 
-Latest source verification after response consolidation and expiry mapping cleanup:
-120 Java tests passed with zero failures/errors/skips. Rerun the commands above
+Latest source verification after simplifying service and bank-client test boundaries:
+129 Java tests passed with zero failures/errors/skips. Rerun the commands above
 for the exact source revision being submitted.
+
+## Test boundaries
+
+PaymentGatewayServiceTest is a Mockito unit test: BankClient, repository and
+idempotency coordinator are mocked; a real SimpleMeterRegistry provides lightweight
+metrics. BankClientTest constructs the client directly and substitutes HTTP with
+MockRestServiceServer to verify transport and parsing failures without Spring startup.
+Controller processing/error, round-trip and observability tests intentionally retain
+Spring wiring and real application layers. Idempotency tests already mock BankClient;
+repository concurrency and validation tests exercise real state and constraints.
+JSON slices retain Spring-configured serialization. No mock replaces the behavior
+that a test is intended to verify.

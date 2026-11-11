@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ResponseCreator;
 
-/** Shared upstream fixtures for service translation and public HTTP contract tests. */
+/** Shared upstream fixtures for bank-client translation and public HTTP contract tests. */
 public enum BankFailureScenario {
   UNAVAILABLE(503, BankErrorCode.BANK_UNAVAILABLE),
   CONNECTION_REFUSED(503, BankErrorCode.BANK_UNAVAILABLE),
