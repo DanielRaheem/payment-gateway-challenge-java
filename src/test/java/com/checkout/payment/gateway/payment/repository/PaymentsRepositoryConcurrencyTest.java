@@ -41,7 +41,7 @@ class PaymentsRepositoryConcurrencyTest {
           ready.countDown();
           assertThat(start.await(5, TimeUnit.SECONDS)).isTrue();
           for (PaymentResponse payment : batch) {
-            repository.add(payment);
+            repository.save(payment);
             assertThat(repository.get(payment.id())).contains(payment);
           }
           return null;

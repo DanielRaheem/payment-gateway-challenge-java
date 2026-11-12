@@ -83,7 +83,7 @@ public class PaymentGatewayService {
     PaymentResponse payment = new PaymentResponse(
         paymentId, paymentStatus, lastFour, paymentRequest.expiryMonth(),
         paymentRequest.expiryYear(), paymentRequest.currency(), paymentRequest.amount());
-    paymentsRepository.add(payment);
+    paymentsRepository.save(payment);
     LOG.info("Payment {} processed with status {}", paymentId, paymentStatus);
 
     return payment;

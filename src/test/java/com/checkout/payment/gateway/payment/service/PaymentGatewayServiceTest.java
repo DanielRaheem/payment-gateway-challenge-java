@@ -69,7 +69,7 @@ class PaymentGatewayServiceTest {
     when(bank.processPayment(bankRequest)).thenReturn(new BankPaymentResponse(authorized, "bank-id"));
     UUID id = service.processPayment(request);
     ArgumentCaptor<PaymentResponse> saved = ArgumentCaptor.forClass(PaymentResponse.class);
-    verify(repository).add(saved.capture());
+    verify(repository).save(saved.capture());
     assertThat(saved.getValue()).isEqualTo(new PaymentResponse(id, status, "0001", 12, 2099, "GBP", 1050));
     assertThat(id).isNotNull();
     verify(bank).processPayment(bankRequest);

@@ -163,7 +163,7 @@ class PaymentProcessingTest {
         .andExpect(jsonPath("$.id").doesNotExist())
         .andExpect(jsonPath("$.card_number").doesNotExist())
         .andExpect(jsonPath("$.cvv").doesNotExist());
-    verify(paymentsRepository, never()).add(any());
+    verify(paymentsRepository, never()).save(any());
   }
 
   private ObjectNode validRequest() {

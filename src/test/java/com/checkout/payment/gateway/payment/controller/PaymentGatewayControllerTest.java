@@ -31,7 +31,7 @@ class PaymentGatewayControllerTest {
         UUID.randomUUID(), PaymentStatus.AUTHORIZED, "0001", 12, 2024, "USD", 10);
 
     // Seed a unique record to keep this lookup test independent of payment submission.
-    paymentsRepository.add(payment);
+    paymentsRepository.save(payment);
 
     mvc.perform(MockMvcRequestBuilders.get("/payment/" + payment.id()))
         .andExpect(status().isOk())

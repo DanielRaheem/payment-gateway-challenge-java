@@ -76,7 +76,7 @@ class PaymentIdempotencyTest {
     UUID id = UUID.fromString(result.path("id").asText());
     assertThat(repository.get(id)).isPresent();
     verify(bankClient, times(1)).processPayment(any());
-    verify(repository, times(1)).add(any());
+    verify(repository, times(1)).save(any());
   }
 
   @ParameterizedTest
@@ -106,7 +106,7 @@ class PaymentIdempotencyTest {
              "message":"Idempotency key has already been used for a different request"}
             """));
     verify(bankClient, times(1)).processPayment(any());
-    verify(repository, times(1)).add(any());
+    verify(repository, times(1)).save(any());
   }
 
   @Test
@@ -117,7 +117,7 @@ class PaymentIdempotencyTest {
     MockHttpServletResponse second = submit(UUID.randomUUID().toString(), request);
     assertDistinctPayments(first, second);
     verify(bankClient, times(2)).processPayment(any());
-    verify(repository, times(2)).add(any());
+    verify(repository, times(2)).save(any());
   }
 
   @Test
@@ -137,7 +137,7 @@ class PaymentIdempotencyTest {
     assertThat(submit(key, invalid.toString()).getStatus()).isEqualTo(400);
     assertThat(submit(key, validRequest().toString()).getStatus()).isEqualTo(201);
     verify(bankClient, times(1)).processPayment(any());
-    verify(repository, times(1)).add(any());
+    verify(repository, times(1)).save(any());
   }
 
   @ParameterizedTest
@@ -154,7 +154,7 @@ class PaymentIdempotencyTest {
     assertThat(objectMapper.readTree(replay.getContentAsString()))
         .isEqualTo(objectMapper.readTree(first.getContentAsString()));
     verify(bankClient, times(1)).processPayment(any());
-    verify(repository, times(0)).add(any());
+    verify(repository, times(0)).save(any());
   }
 
   static Stream<Arguments> bankFailures() {
@@ -199,7 +199,7 @@ class PaymentIdempotencyTest {
       }
       assertThat(results).allMatch(result -> result.equals(results.get(0)));
       verify(bankClient, times(1)).processPayment(any());
-      verify(repository, times(1)).add(any());
+      verify(repository, times(1)).save(any());
     } finally {
       start.countDown();
       releaseBank.countDown();
@@ -252,7 +252,7 @@ class PaymentIdempotencyTest {
         """));
 
     verifyNoInteractions(bankClient);
-    verify(repository, never()).add(any());
+    verify(repository, never()).save(any());
   }
 
   private MockHttpServletResponse submit(String key, String body) throws Exception {
